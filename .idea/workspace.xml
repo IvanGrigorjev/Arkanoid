@@ -5,6 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="7be54423-1280-41ed-99d9-b420e558d466" name="Changes" comment="Сделал заготовку кода. Нарисовал изображения">
+      <change afterPath="$PROJECT_DIR$/data/back_button.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/level/1.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/arkanoid.py" beforeDir="false" afterPath="$PROJECT_DIR$/arkanoid.py" afterDir="false" />
     </list>
@@ -51,7 +53,8 @@
     "Python.table(2).executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "git-widget-placeholder": "master",
-    "last_opened_file_path": "C:/Users/Sysadmin/PycharmProjects/Arkanoid/data",
+    "ignore.virus.scanning.warn.message": "true",
+    "last_opened_file_path": "C:/Users/Sysadmin/PycharmProjects/Arkanoid",
     "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
   }
 }]]></component>
@@ -111,7 +114,15 @@
       <option name="project" value="LOCAL" />
       <updated>1740021227255</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Сделал заготовку кода. Нарисовал изображения">
+      <option name="closed" value="true" />
+      <created>1740025876086</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1740025876086</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -126,7 +137,8 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Сделал заготовку кода. Нарисовал изображения" />
-    <option name="LAST_COMMIT_MESSAGE" value="Сделал заготовку кода. Нарисовал изображения" />
+    <MESSAGE value="Добавил на стартовый экран кнопки. Визуализировал наведение на них" />
+    <MESSAGE value="Добавил на стартовый экран кнопки. Визуализировал наведение на них" />
+    <option name="LAST_COMMIT_MESSAGE" value="Добавил на стартовый экран кнопки. Визуализировал наведение на них" />
   </component>
 </project>
