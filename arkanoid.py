@@ -33,6 +33,34 @@ def terminate():
     pygame.quit()
     sys.exit()
 
+
+class Button(pygame.sprite.Sprite):
+    def __init__(self, group, file_image, y):
+        super().__init__()
+        group.add(self)
+        self.file_image = file_image
+        self.image = load_image(file_image)
+        self.y = y
+        self.rect = self.image.get_rect()
+        self.rect.x = W // 2 - self.rect[2] // 2
+        self.rect.y = y
+
+    def update(self, *args):
+        mous_pos = pygame.mouse.get_pos()
+        if self.rect.x <= mous_pos[0] <= self.rect.x + self.rect[2] and\
+                self.rect.y <= mous_pos[1] <= self.rect.y + self.rect[3]:
+            self.image = pygame.transform.scale(load_image(self.file_image), (450, 180))
+            self.rect = self.image.get_rect()
+            self.rect.x = W // 2 - self.rect[2] // 2
+            self.rect.y = self.y
+        else:
+            self.image = load_image(self.file_image)
+            self.rect = self.image.get_rect()
+            self.rect.x = W // 2 - self.rect[2] // 2
+            self.rect.y = self.y
+
+
+
 def cursor_replacement():
     mouse_cursor = load_image("arrow.png")
     if pygame.mouse.get_focused():
@@ -40,21 +68,24 @@ def cursor_replacement():
         x, y = pygame.mouse.get_pos()
         screen.blit(mouse_cursor, (x, y))
 
+
 def start_screen():
     fon = pygame.transform.scale(load_image('starting_background.png'), (W, H))
-
+    button_group = pygame.sprite.Group()
+    start_button = Button(button_group, 'button_start.png', 484)
+    rules_button = Button(button_group, 'rules_button.png', 320)
 
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 terminate()
-            elif event.type == pygame.KEYDOWN or \
-                    event.type == pygame.MOUSEBUTTONDOWN:
+            elif event.type == pygame.MOUSEBUTTONDOWN:
                 return  # начинаем игру
         pygame.display.flip()
         screen.blit(fon, (0, 0))
+        button_group.update(event)
+        button_group.draw(screen)
         cursor_replacement()
-
         clock.tick(FPS)
 
 
