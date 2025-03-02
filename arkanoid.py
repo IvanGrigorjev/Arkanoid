@@ -1,4 +1,5 @@
 import os
+import random
 import sys
 from pprint import pprint
 
@@ -115,38 +116,40 @@ def load_level(filename):
     with open(filename, 'r') as mapFile:
         level_map = [line.strip() for line in mapFile]
     return level_map
-
-
-class Tile(pygame.sprite.Sprite):
-    def __init__(self, tile_type, pos_x, pos_y):
-        super().__init__(all_sprites)
-        self.image = tile_images[tile_type]
-        if tile_type == 'block':
-            self.add(blocks_group)
-            self.endurance = 100
-        elif tile_type == 'brick_1':
-            self.add(bricks_group)
-            self.endurance = 1
-        elif tile_type == 'brick_2':
-            self.add(bricks_group)
-            self.endurance = 2
-        elif tile_type == 'brick_3':
-            self.add(bricks_group)
-            self.endurance = 3
-        self.rect = self.image.get_rect().move(
-            80 + tile_width * pos_x, 49 + tile_height * pos_y)
-        self.pos = (pos_x, pos_y)
-
-
+#
+#
+# class Tile(pygame.sprite.Sprite):
+#     def __init__(self, tile_type, pos_x, pos_y):
+#         super().__init__(all_sprites)
+#         self.image = tile_images[tile_type]
+#         self.endurance = 0  # Прочность кирпича
+#         if tile_type == 'block':
+#             self.add(blocks_group)
+#             self.endurance = 1000
+#         elif tile_type == 'brick_1':
+#             self.add(bricks_group)
+#             self.endurance = 1
+#         elif tile_type == 'brick_2':
+#             self.add(bricks_group)
+#             self.endurance = 2
+#         elif tile_type == 'brick_3':
+#             self.add(bricks_group)
+#             self.endurance = 3
+#         self.rect = self.image.get_rect().move(
+#             80 + tile_width * pos_x, 49 + tile_height * pos_y)
+#         self.pos = (pos_x, pos_y)
+#         self.hit = False
+#
+#
 def generate_level(level):
     x, y = None, None
     for y in range(len(level)):
         for x in range(len(level[y])):
-            if level[y][x] == 'x':
+            if level[y][x] == '1':
                 Tile('brick_1', x, y)
-            elif level[y][x] == 'y':
+            elif level[y][x] == '2':
                 Tile('brick_2', x, y)
-            elif level[y][x] == 'z':
+            elif level[y][x] == '3':
                 Tile('brick_3', x, y)
             elif level[y][x] == '#':
                 Tile('block', x, y)
@@ -174,47 +177,94 @@ class Player(pygame.sprite.Sprite):
         self.rect.x = W // 2 - self.rect[2] // 2
         self.rect.y = 668 - self.rect[3] // 2
         self.pos = (self.rect.x, self.rect.y)
+        self.width = self.rect[2]
+        self.height = self.rect[3]
+        self.speed = 8
 
-    def update(self, *args, **kwargs):
-        pass
-
-    def move(self, dx, dy):
-        pass
+    def update(self, mouse_x):
+        # Платформа следует за курсором мыши по горизонтали
+        self.rect.x = mouse_x - self.width // 2
+        # Ограничение, чтобы платформа не выходила за границы экрана
+        if self.rect.x < -20:
+            self.rect.x = -20
+        if self.rect.x > W - self.width + 20:
+            self.rect.x = W - self.width + 20
 
 
 class Ball(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__(balls_group, all_sprites)
         self.image = ball_image
-        self.original_image = self.image
         self.rect = self.image.get_rect()
         self.rect.x = W // 2 - self.rect[2] // 2
         self.rect.y = player.pos[1] - 10
         self.pos = (self.rect.x, self.rect.y)
+        self.speed_x = 5 * random.choice([-1, 1])
+        self.speed_y = -5
+        self.is_moving = False  # Мяч не двигается, пока не нажата кнопка мыши
 
-    def update(self, *args, **kwargs):
-        pass
+    def move(self):
+        if self.is_moving:
+            self.rect.x += self.speed_x
+            self.rect.y += self.speed_y
+            # Отскок от стен и плтаформы
+            if pygame.sprite.collide_mask(self, upper_border):
+                self.speed_y = -self.speed_y
+            if pygame.sprite.collide_mask(self, left_border) or pygame.sprite.collide_mask(self, right_border):
+                self.speed_x = -self.speed_x
+        else:
+            # Мяч следует за платформой
+            self.rect.x = player.rect.x + player.width // 2
+
+    def collide_with_brick(self, brick):
+        if self.rect.colliderect(brick.rect):
+            # Определяем, с какой стороны произошло столкновение
+            if abs(self.rect.bottom - brick.rect.top) < 10 and self.speed_y > 0:
+                self.speed_y = -self.speed_y  # Столкновение сверху
+            elif abs(self.rect.top - brick.rect.bottom) < 10 and self.speed_y < 0:
+                self.speed_y = -self.speed_y  # Столкновение снизу
+            elif abs(self.rect.right - brick.rect.left) < 10 and self.speed_x > 0:
+                self.speed_x = -self.speed_x  # Столкновение слева
+            elif abs(self.rect.left - brick.rect.right) < 10 and self.speed_x < 0:
+                self.speed_x = -self.speed_x  # Столкновение справа
+            brick.take_damage()  # Наносим урон кирпичу
+
+    def start_moving(self):
+        self.is_moving = True
 
 
-    def move(self, dx, dy):
-        pass
+# Класс кирпича
+class Brick(pygame.sprite.Sprite):
+    def __init__(self, x, y, health):
+        super().__init__(all_sprites)
+        if health == 1:
+            self.image = load_image('brick_1.png')
+        elif health == 2:
+            self.image = load_image('brick_2.png')
+        elif health == 3:
+            self.image = load_image('brick_3.png')
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.health = health  # Прочность кирпича
 
 
-tile_images = {
-    'brick_1': load_image('brick_1.png'),
-    'brick_2': load_image('brick_2.png'),
-    'brick_3': load_image('brick_3.png'),
-    'block': load_image('concrete_block.png')
-}
+    def take_damage(self):
+        self.health -= 1  # Уменьшаем прочность кирпича
+        if self.health <= 0:
+            self.kill()  # Удаляем кирпич, если прочность <= 0
+
+
+
 player_image = load_image('game_stick.png')
 ball_image = load_image('ball.png')
 
-tile_width = 96
-tile_height = 48
+brick_width = 96
+brick_height = 48
 
 all_sprites = pygame.sprite.Group()
-bricks_group = pygame.sprite.Group()
-blocks_group = pygame.sprite.Group()
+bricks = pygame.sprite.Group()
+blocks = pygame.sprite.Group()
 player_group = pygame.sprite.Group()
 balls_group = pygame.sprite.Group()
 borders_group = pygame.sprite.Group()
@@ -229,8 +279,17 @@ right_border = Border('lateral_border.png', W - 13, H - 711 - 13)
 upper_border = Border('upper_border.png', 0, 0)
 lower_border = Border('lower_border.png', 0, H - 13)
 
-map_level = load_level('1.txt')
-level_x, level_y = generate_level(map_level)
+# map_level = load_level('1.txt')
+# level_x, level_y = generate_level(map_level)
+
+# Создаем кирпичи с разной прочностью
+for i in range(9):
+    for j in range(5):
+        health = random.randint(1, 3)  # Случайная прочность от 1 до 3
+        brick = Brick(i * (brick_width + 0) + 80, j * (brick_height + 0) + 50, health)
+        bricks.add(brick)
+        all_sprites.add(brick)
+
 
 player = Player()
 ball = Ball()
@@ -241,10 +300,14 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:  # Левая кнопка мыши
+            ball.start_moving()
 
     screen.blit(game_fon, (0, 0))
     all_sprites.draw(screen)
-    ball.update()
+    mouse_x, _ = pygame.mouse.get_pos()
+    player.update(mouse_x)
+    ball.move()
     cursor_replacement()
     pygame.display.flip()
     clock.tick(FPS)
