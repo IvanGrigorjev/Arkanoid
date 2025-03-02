@@ -4,8 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7be54423-1280-41ed-99d9-b420e558d466" name="Changes" comment="Сделано:&#10;- общая механика игры&#10;- загрузка уровня">
-      <change afterPath="$PROJECT_DIR$/data/health.png" afterDir="false" />
+    <list default="true" id="7be54423-1280-41ed-99d9-b420e558d466" name="Changes" comment="Сделано:&#10;- учитываются и отображаются жизни игрока">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/arkanoid.py" beforeDir="false" afterPath="$PROJECT_DIR$/arkanoid.py" afterDir="false" />
     </list>
@@ -146,7 +145,15 @@
       <option name="project" value="LOCAL" />
       <updated>1740923832042</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Сделано:&#10;- учитываются и отображаются жизни игрока">
+      <option name="closed" value="true" />
+      <created>1740926611771</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1740926611771</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -166,6 +173,7 @@
     <MESSAGE value="Сделано:&#10;- отображение правил на стартовом экране;&#10;- общее оображение игрового экрана&#10;- загрузка карты уровня" />
     <MESSAGE value="Сделано:&#10;- общая механика игры" />
     <MESSAGE value="Сделано:&#10;- общая механика игры&#10;- загрузка уровня" />
-    <option name="LAST_COMMIT_MESSAGE" value="Сделано:&#10;- общая механика игры&#10;- загрузка уровня" />
+    <MESSAGE value="Сделано:&#10;- учитываются и отображаются жизни игрока" />
+    <option name="LAST_COMMIT_MESSAGE" value="Сделано:&#10;- учитываются и отображаются жизни игрока" />
   </component>
 </project>

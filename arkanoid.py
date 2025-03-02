@@ -124,7 +124,6 @@ def generate_level(level):
     for j in range(5):
         for i in range(9):
             health = int(level[j][i])
-            print(i, j, health)
             brick = Brick(i * (brick_width + 0) + 80, j * (brick_height + 0) + 50, health)
     return i, j
 
@@ -169,8 +168,8 @@ class Ball(pygame.sprite.Sprite):
         super().__init__(balls, all_sprites)
         self.image = ball_image
         self.rect = self.image.get_rect()
-        self.rect.x = W // 2 - self.rect[2] // 2
-        self.rect.y = player.pos[1] - 10
+        self.rect.x = (W - self.rect[2]) // 2
+        self.rect.y = player.pos[1] - 12
         self.pos = (self.rect.x, self.rect.y)
         self.speed_x = 5 * random.choice([-1, 1])
         self.speed_y = -5
@@ -187,7 +186,7 @@ class Ball(pygame.sprite.Sprite):
                 self.speed_x = -self.speed_x
         else:
             # Мяч следует за платформой
-            self.rect.x = player.rect.x + player.width // 2
+            self.rect.x = player.rect.x + player.width // 2.2
 
     def collide_with_brick(self, brick):
         if self.rect.colliderect(brick.rect):
@@ -207,8 +206,8 @@ class Ball(pygame.sprite.Sprite):
 
     def reset_position(self):
         # Сбрасываем позицию мяча на платформу
-        self.rect.x = player.pos[0] + 30
-        self.rect.y = player.pos[1] - 10
+        self.rect.x = (W - self.rect[2]) // 2
+        self.rect.y = player.pos[1] - 12
         self.is_moving = False
 
 
@@ -229,6 +228,14 @@ class Brick(pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
         self.health = health  # Прочность кирпича
+
+    def update(self):
+        if self.health == 1:
+            self.image = load_image('brick_1.png')
+        elif self.health == 2:
+            self.image = load_image('brick_2.png')
+        elif self.health == 3:
+            self.image = load_image('brick_3.png')
 
     def take_damage(self):
         self.health -= 1  # Уменьшаем прочность кирпича
@@ -305,6 +312,8 @@ while running:
     player.update(mouse_x)
 
     ball.move()
+
+    bricks.update()
 
     # Отображение количества жизней
     for i in range(lives):
