@@ -117,6 +117,7 @@ def load_level(filename):
         level_map = [line.strip() for line in mapFile]
     return level_map
 
+
 def generate_level(level):
     i, j = None, None
     # Создаем кирпичи с разной прочностью
@@ -142,7 +143,7 @@ class Border(pygame.sprite.Sprite):
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self):
+    def __init__(self, health=3):
         super().__init__(players, all_sprites)
         self.image = player_image
         self.rect = self.image.get_rect()
@@ -151,7 +152,6 @@ class Player(pygame.sprite.Sprite):
         self.pos = (self.rect.x, self.rect.y)
         self.width = self.rect[2]
         self.height = self.rect[3]
-        self.speed = 8
 
     def update(self, mouse_x):
         # Платформа следует за курсором мыши по горизонтали
@@ -161,6 +161,7 @@ class Player(pygame.sprite.Sprite):
             self.rect.x = -20
         if self.rect.x > W - self.width + 20:
             self.rect.x = W - self.width + 20
+
 
 # класс Мяча
 class Ball(pygame.sprite.Sprite):
@@ -204,6 +205,12 @@ class Ball(pygame.sprite.Sprite):
     def start_moving(self):
         self.is_moving = True
 
+    def reset_position(self):
+        # Сбрасываем позицию мяча на платформу
+        self.rect.x = player.pos[0] + 30
+        self.rect.y = player.pos[1] - 10
+        self.is_moving = False
+
 
 # Класс Кирпича
 class Brick(pygame.sprite.Sprite):
@@ -229,7 +236,13 @@ class Brick(pygame.sprite.Sprite):
             self.kill()  # Удаляем кирпич, если прочность <= 0
 
 
+# Картинка для спрайта платформы
 player_image = load_image('game_stick.png')
+
+# Жизни игрока
+lives = 3
+
+# Картинка для мячика
 ball_image = load_image('ball.png')
 
 brick_width = 96
@@ -258,14 +271,6 @@ level_x, level_y = generate_level(map_level)
 player = Player()
 ball = Ball()
 
-# # Создаем кирпичи с разной прочностью
-# for i in range(9):
-#     for j in range(5):
-#         health = random.randint(1, 4)  # Случайная прочность от 1 до 3
-#         brick = Brick(i * (brick_width + 0) + 80, j * (brick_height + 0) + 50, health)
-#         bricks.add(brick)
-#         all_sprites.add(brick)
-
 running = True
 
 while running:
@@ -283,12 +288,16 @@ while running:
         brick.take_damage()  # Наносим урон кирпичу
 
     # Проверка столкновений мяча с платформой
-    if pygame.sprite.spritecollide(ball, players, False, pygame.sprite.collide_mask):
+    if pygame.sprite.collide_mask(ball, player):
         ball.speed_y = -ball.speed_y
 
-    # Проверка на проигрыш
+    # Проверка на потерю жизни
     if ball.rect.bottom >= H:
-        running = False
+        lives -= 1  # Уменьшаем количество жизней
+        if lives <= 0:
+            running = False  # Игра завершается, если жизни закончились
+        else:
+            ball.reset_position()  # Перезапускаем мяч на платформе
 
     all_sprites.draw(screen)
 
@@ -296,6 +305,11 @@ while running:
     player.update(mouse_x)
 
     ball.move()
+
+    # Отображение количества жизней
+    for i in range(lives):
+        lives_images = pygame.transform.scale_by(load_image('health.png'), 0.7)
+        screen.blit(lives_images, (20 + i * 40, 670))
 
     cursor_replacement()
     pygame.display.flip()

@@ -4,10 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7be54423-1280-41ed-99d9-b420e558d466" name="Changes" comment="Сделано:&#10;- общая механика игры">
+    <list default="true" id="7be54423-1280-41ed-99d9-b420e558d466" name="Changes" comment="Сделано:&#10;- общая механика игры&#10;- загрузка уровня">
+      <change afterPath="$PROJECT_DIR$/data/health.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/arkanoid.py" beforeDir="false" afterPath="$PROJECT_DIR$/arkanoid.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/level/1.txt" beforeDir="false" afterPath="$PROJECT_DIR$/level/1.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -138,7 +138,15 @@
       <option name="project" value="LOCAL" />
       <updated>1740915453900</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Сделано:&#10;- общая механика игры&#10;- загрузка уровня">
+      <option name="closed" value="true" />
+      <created>1740923832042</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1740923832042</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -157,6 +165,7 @@
     <MESSAGE value="Добавил на стартовый экран кнопки. Визуализировал наведение на них" />
     <MESSAGE value="Сделано:&#10;- отображение правил на стартовом экране;&#10;- общее оображение игрового экрана&#10;- загрузка карты уровня" />
     <MESSAGE value="Сделано:&#10;- общая механика игры" />
-    <option name="LAST_COMMIT_MESSAGE" value="Сделано:&#10;- общая механика игры" />
+    <MESSAGE value="Сделано:&#10;- общая механика игры&#10;- загрузка уровня" />
+    <option name="LAST_COMMIT_MESSAGE" value="Сделано:&#10;- общая механика игры&#10;- загрузка уровня" />
   </component>
 </project>
