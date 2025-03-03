@@ -4,6 +4,7 @@ import sys
 from pprint import pprint
 
 import pygame
+from pygame import font
 
 WINDOW_SIZE = W, H = 1024, 727
 FPS = 60
@@ -188,19 +189,6 @@ class Ball(pygame.sprite.Sprite):
             # Мяч следует за платформой
             self.rect.x = player.rect.x + player.width // 2.2
 
-    def collide_with_brick(self, brick):
-        if self.rect.colliderect(brick.rect):
-            # Определяем, с какой стороны произошло столкновение
-            if abs(self.rect.bottom - brick.rect.top) < 10 and self.speed_y > 0:
-                self.speed_y = -self.speed_y  # Столкновение сверху
-            elif abs(self.rect.top - brick.rect.bottom) < 10 and self.speed_y < 0:
-                self.speed_y = -self.speed_y  # Столкновение снизу
-            elif abs(self.rect.right - brick.rect.left) < 10 and self.speed_x > 0:
-                self.speed_x = -self.speed_x  # Столкновение слева
-            elif abs(self.rect.left - brick.rect.right) < 10 and self.speed_x < 0:
-                self.speed_x = -self.speed_x  # Столкновение справа
-            brick.take_damage()  # Наносим урон кирпичу
-
     def start_moving(self):
         self.is_moving = True
 
@@ -249,12 +237,17 @@ player_image = load_image('game_stick.png')
 # Жизни игрока
 lives = 3
 
+# Пауза
+paused = False
+
 # Картинка для мячика
 ball_image = load_image('ball.png')
 
+# Размеры кирпичей
 brick_width = 96
 brick_height = 48
 
+# Группы спрайтов
 all_sprites = pygame.sprite.Group()
 bricks = pygame.sprite.Group()
 players = pygame.sprite.Group()
@@ -263,6 +256,7 @@ borders = pygame.sprite.Group()
 
 clock = pygame.time.Clock()
 
+# Начинаем игру со стратового экрана
 start_screen()
 
 game_fon = pygame.transform.scale(load_image('game_background.png'), (W, H))
@@ -278,6 +272,9 @@ level_x, level_y = generate_level(map_level)
 player = Player()
 ball = Ball()
 
+game_over = load_image('end_backround.png')
+game_over.set_alpha(0)
+
 running = True
 
 while running:
@@ -286,39 +283,61 @@ while running:
             running = False
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:  # Левая кнопка мыши
             ball.start_moving()
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_p:  # Пауза при нажатии P
+                paused = not paused
 
-    screen.blit(game_fon, (0, 0))
+    if not paused:
+        screen.blit(game_fon, (0, 0))
 
-    collisions = pygame.sprite.spritecollide(ball, bricks, False, pygame.sprite.collide_mask)
-    for brick in collisions:
-        ball.speed_y = -ball.speed_y  # Мяч отскакивает
-        brick.take_damage()  # Наносим урон кирпичу
+        collisions = pygame.sprite.spritecollide(ball, bricks, False, pygame.sprite.collide_mask)
+        for brick in collisions:
+            # Определяем, с какой стороны произошло столкновение
+            if abs(ball.rect.bottom - brick.rect.top) < 10 and ball.speed_y > 0:
+                ball.speed_y = -ball.speed_y  # Столкновение сверху
+            elif abs(ball.rect.top - brick.rect.bottom) < 10 and ball.speed_y < 0:
+                ball.speed_y = -ball.speed_y  # Столкновение снизу
+            elif abs(ball.rect.right - brick.rect.left) < 10 and ball.speed_x > 0:
+                ball.speed_x = -ball.speed_x  # Столкновение слева
+            elif abs(ball.rect.left - brick.rect.right) < 10 and ball.speed_x < 0:
+                ball.speed_x = -ball.speed_x  # Столкновение справа
+            brick.take_damage()  # Наносим урон кирпичу
 
-    # Проверка столкновений мяча с платформой
-    if pygame.sprite.collide_mask(ball, player):
-        ball.speed_y = -ball.speed_y
+        # Проверка столкновений мяча с платформой
+        if pygame.sprite.collide_mask(ball, player):
+            ball.speed_y = -ball.speed_y
 
-    # Проверка на потерю жизни
-    if ball.rect.bottom >= H:
-        lives -= 1  # Уменьшаем количество жизней
-        if lives <= 0:
-            running = False  # Игра завершается, если жизни закончились
-        else:
-            ball.reset_position()  # Перезапускаем мяч на платформе
+        # Проверка на потерю жизни
+        if ball.rect.bottom >= H:
+            lives -= 1  # Уменьшаем количество жизней
+            if lives <= 0:
+                for brick in bricks:
+                    brick.kill()
+                player.kill()
+                screen.blit(game_over, (0, 0))
+                game_over.set_alpha(game_over.get_alpha() + 2)  # Игра завершается, если жизни закончились
+            else:
+                ball.reset_position()  # Перезапускаем мяч на платформе
+
+        mouse_x, _ = pygame.mouse.get_pos()
+        player.update(mouse_x)
+
+        ball.move()
+
+        bricks.update()
+
+        # Отображение количества жизней
+        for i in range(lives):
+            lives_images = pygame.transform.scale_by(load_image('health.png'), 0.7)
+            screen.blit(lives_images, (20 + i * 40, 670))
+
+    if paused:
+        screen.fill((100, 100, 100))
+        font = pygame.font.Font(None, 36)
+        pause_text = font.render("Пауза", True, "WHITE")
+        screen.blit(pause_text, (W // 2 - 40, H // 2))
 
     all_sprites.draw(screen)
-
-    mouse_x, _ = pygame.mouse.get_pos()
-    player.update(mouse_x)
-
-    ball.move()
-
-    bricks.update()
-
-    # Отображение количества жизней
-    for i in range(lives):
-        lives_images = pygame.transform.scale_by(load_image('health.png'), 0.7)
-        screen.blit(lives_images, (20 + i * 40, 670))
 
     cursor_replacement()
     pygame.display.flip()
