@@ -99,6 +99,8 @@ def start_screen():
                 if back_button.rect.collidepoint(event.pos):
                     rules_screen = False  # закрываем правила
         if rules_screen:
+            rules_image = load_image('rules.png')
+            screen.blit(rules_image, (150, 350))
             start_button.remove(button_group)
             rules_button.remove(button_group)
             back_button.add(button_group)
@@ -327,7 +329,8 @@ while running:
                     brick.kill()
                 player.kill()
                 screen.blit(game_over, (0, 0))
-                game_over.set_alpha(game_over.get_alpha() + 2)  # Игра завершается, если жизни закончились
+                game_over.set_alpha(game_over.get_alpha() + 4)  # Игра завершается, если жизни закончились
+
             else:
                 ball.reset_position()  # Перезапускаем мяч на платформе
 
