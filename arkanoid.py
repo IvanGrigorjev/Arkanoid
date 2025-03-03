@@ -6,7 +6,7 @@ from pprint import pprint
 import pygame
 from pygame import font
 
-WINDOW_SIZE = W, H = 1024, 727
+WINDOW_SIZE = W, H = 1024, 727  # размеры окна
 FPS = 60
 
 pygame.init()
@@ -44,7 +44,7 @@ def terminate():
     sys.exit()
 
 
-# Класс для кнопок стартового меню
+# Класс Кнопок стартового меню
 class Button(pygame.sprite.Sprite):
     def __init__(self, group, file_image, x, y):
         super().__init__()
@@ -124,6 +124,7 @@ def start_screen():
         clock.tick(FPS)
 
 
+# Функция загрузки карты расположения кирпичей
 def load_level(filename):
     filename = "level/" + filename
     with open(filename, 'r') as mapFile:
@@ -133,7 +134,7 @@ def load_level(filename):
 
 def generate_level(level):
     i, j = None, None
-    # Создаем кирпичи с разной прочностью
+    # Создаем кирпичи с разной прочностью (прочность указана числовыми значениями в тхт файле)
     for j in range(5):
         for i in range(9):
             health = int(level[j][i])
@@ -141,6 +142,7 @@ def generate_level(level):
     return i, j
 
 
+# Класс ограничителей полета мяча
 class Border(pygame.sprite.Sprite):
     def __init__(self, border_image, x, y):
         super().__init__(borders, all_sprites)
@@ -154,6 +156,7 @@ class Border(pygame.sprite.Sprite):
         self.rect.y = y
 
 
+# Класс платформы
 class Player(pygame.sprite.Sprite):
     def __init__(self, health=3):
         super().__init__(players, all_sprites)
@@ -218,6 +221,7 @@ class Ball(pygame.sprite.Sprite):
 
 # Класс Кирпича
 class Brick(pygame.sprite.Sprite):
+    # Разбиваемые кирпичи дополнительно поместим в отдельную группу спрайтов
     def __init__(self, x, y, health):
         super().__init__(blocks, all_sprites)
         if health == 1:
@@ -289,7 +293,10 @@ start_screen()
 
 round_number = 1  # Начинаем с первого раунда
 
+# Загрузка основного фона
 game_fon = pygame.transform.scale(load_image('game_background.png'), (W, H))
+
+# Создание екземпляров ограничителей
 left_border = Border('lateral_border.png', 0, H - 711 - 13)
 right_border = Border('lateral_border.png', W - 13, H - 711 - 13)
 upper_border = Border('upper_border.png', 0, 0)
@@ -377,7 +384,6 @@ while running:
         player.update(mouse_x)
 
         ball.move()
-
         bricks.update()
 
         # Отображение количества жизней и очки
