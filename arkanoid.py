@@ -203,17 +203,25 @@ class Ball(pygame.sprite.Sprite):
         self.rect.y = player.pos[1] - 12
         self.is_moving = False
 
+    def up_speed(self):
+        # Увеличиваем скорость мяча
+        self.speed_x *= 1.2
+        self.speed_y *= 1.2
+
 
 # Класс Кирпича
 class Brick(pygame.sprite.Sprite):
     def __init__(self, x, y, health):
-        super().__init__(bricks, all_sprites)
+        super().__init__(blocks, all_sprites)
         if health == 1:
             self.image = load_image('brick_1.png')
+            self.add(bricks)
         elif health == 2:
             self.image = load_image('brick_2.png')
+            self.add(bricks)
         elif health == 3:
             self.image = load_image('brick_3.png')
+            self.add(bricks)
         else:
             self.image = load_image('concrete_block.png')
             health = 1000
@@ -262,6 +270,7 @@ brick_height = 48
 # Группы спрайтов
 all_sprites = pygame.sprite.Group()
 bricks = pygame.sprite.Group()
+blocks = pygame.sprite.Group()
 players = pygame.sprite.Group()
 balls = pygame.sprite.Group()
 borders = pygame.sprite.Group()
@@ -271,6 +280,8 @@ clock = pygame.time.Clock()
 # Начинаем игру со стратового экрана
 start_screen()
 
+round_number = 1  # Начинаем с первого раунда
+
 game_fon = pygame.transform.scale(load_image('game_background.png'), (W, H))
 left_border = Border('lateral_border.png', 0, H - 711 - 13)
 right_border = Border('lateral_border.png', W - 13, H - 711 - 13)
@@ -278,7 +289,6 @@ upper_border = Border('upper_border.png', 0, 0)
 lower_border = Border('lower_border.png', 0, H - 13)
 
 map_level = load_level('1.txt')
-print(map_level)
 level_x, level_y = generate_level(map_level)
 
 player = Player()
@@ -304,7 +314,7 @@ while running:
     if not paused:
         screen.blit(game_fon, (0, 0))
 
-        collisions = pygame.sprite.spritecollide(ball, bricks, False, pygame.sprite.collide_mask)
+        collisions = pygame.sprite.spritecollide(ball, blocks, False, pygame.sprite.collide_mask)
         for brick in collisions:
             # Определяем, с какой стороны произошло столкновение
             if abs(ball.rect.bottom - brick.rect.top) < 10 and ball.speed_y > 0:
@@ -325,7 +335,7 @@ while running:
         if ball.rect.bottom >= H:
             lives -= 1  # Уменьшаем количество жизней
             if lives <= 0:
-                for brick in bricks:
+                for brick in blocks:
                     brick.kill()
                 player.kill()
                 screen.blit(game_over, (0, 0))
@@ -333,6 +343,22 @@ while running:
 
             else:
                 ball.reset_position()  # Перезапускаем мяч на платформе
+
+        if len(bricks) == 0:
+            if round_number == 1:
+                # Переход ко второму раунду
+                round_number = 2
+                ball.up_speed()  # Увеличиваем скорость мяча
+                map_level = load_level('2.txt')
+                level_x, level_y = generate_level(map_level)
+                ball.reset_position()  # Перезапускаем мяч на платформе
+            else:
+                player.kill()
+                ball.kill()
+                for brick in blocks:
+                    brick.kill()
+                screen.blit(game_over, (0, 0))
+                game_over.set_alpha(game_over.get_alpha() + 4)
 
         mouse_x, _ = pygame.mouse.get_pos()
         player.update(mouse_x)
