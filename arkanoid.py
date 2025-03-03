@@ -13,6 +13,13 @@ pygame.init()
 screen = pygame.display.set_mode(WINDOW_SIZE)
 pygame.display.set_caption('Арканоид')
 
+# Загрузка звуков
+pygame.mixer.init()
+hit_sound = pygame.mixer.Sound("sound/hit.wav")  # Звук удара мяча о платформу
+brick_sound = pygame.mixer.Sound("sound/brick.wav")  # Звук удара мяча о кирпич
+lose_sound = pygame.mixer.Sound("sound/lose.wav")  # Звук потери жизни
+win_sound = pygame.mixer.Sound("sound/win.wav")  # Звук завершения раунда
+
 
 # Функция загрузки изображений из вложенной папки DATA
 def load_image(name, colorkey=None):
@@ -296,6 +303,7 @@ ball = Ball()
 
 game_over = load_image('end_backround.png')
 game_over.set_alpha(0)
+game_over_flag = False
 
 running = True
 
@@ -326,33 +334,38 @@ while running:
             elif abs(ball.rect.left - brick.rect.right) < 10 and ball.speed_x < 0:
                 ball.speed_x = -ball.speed_x  # Столкновение справа
             score += brick.take_damage()  # Увеличиваем счет за разрушение кирпича
+            brick_sound.play()  # Воспроизводим звук удара о кирпич
 
         # Проверка столкновений мяча с платформой
         if pygame.sprite.collide_mask(ball, player):
             ball.speed_y = -ball.speed_y
+            hit_sound.play()  # Воспроизводим звук удара о платформу
 
         # Проверка на потерю жизни
         if ball.rect.bottom >= H:
+            lose_sound.play()  # Воспроизводим звук потери жизни
             lives -= 1  # Уменьшаем количество жизней
             if lives <= 0:
+                game_over_flag = True
                 for brick in blocks:
                     brick.kill()
                 player.kill()
                 screen.blit(game_over, (0, 0))
                 game_over.set_alpha(game_over.get_alpha() + 4)  # Игра завершается, если жизни закончились
-
             else:
                 ball.reset_position()  # Перезапускаем мяч на платформе
 
-        if len(bricks) == 0:
+        if len(bricks) == 0 and not game_over_flag:
             if round_number == 1:
                 # Переход ко второму раунду
+                win_sound.play()  # Воспроизводим звук завершения раунда
                 round_number = 2
                 ball.up_speed()  # Увеличиваем скорость мяча
                 map_level = load_level('2.txt')
                 level_x, level_y = generate_level(map_level)
                 ball.reset_position()  # Перезапускаем мяч на платформе
             else:
+                win_sound.play()  # Воспроизводим звук завершения раунда
                 player.kill()
                 ball.kill()
                 for brick in blocks:
