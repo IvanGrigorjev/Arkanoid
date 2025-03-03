@@ -14,6 +14,7 @@ screen = pygame.display.set_mode(WINDOW_SIZE)
 pygame.display.set_caption('Арканоид')
 
 
+# Функция загрузки изображений из вложенной папки DATA
 def load_image(name, colorkey=None):
     fullname = os.path.join('data', name)
     # если файл не существует, то выходим
@@ -36,6 +37,7 @@ def terminate():
     sys.exit()
 
 
+# Класс для кнопок стартового меню
 class Button(pygame.sprite.Sprite):
     def __init__(self, group, file_image, x, y):
         super().__init__()
@@ -63,6 +65,7 @@ class Button(pygame.sprite.Sprite):
             self.rect.y = self.y
 
 
+# Функция подмены курсора мыши
 def cursor_replacement():
     mouse_cursor = load_image("arrow.png")
     if pygame.mouse.get_focused():
@@ -211,11 +214,13 @@ class Brick(pygame.sprite.Sprite):
             self.image = load_image('brick_3.png')
         else:
             self.image = load_image('concrete_block.png')
-            health = 100
+            health = 1000
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
         self.health = health  # Прочность кирпича
+        self.points = health * 10  # Очки за разрушение кирпича
+        self.mask = pygame.mask.from_surface(self.image)  # Маска для коллизий
 
     def update(self):
         if self.health == 1:
@@ -229,6 +234,8 @@ class Brick(pygame.sprite.Sprite):
         self.health -= 1  # Уменьшаем прочность кирпича
         if self.health <= 0:
             self.kill()  # Удаляем кирпич, если прочность <= 0
+            return self.points  # Возвращаем очки за разрушение кирпича
+        return 0
 
 
 # Картинка для спрайта платформы
@@ -236,6 +243,9 @@ player_image = load_image('game_stick.png')
 
 # Жизни игрока
 lives = 3
+
+# Счет игрока
+score = 0
 
 # Пауза
 paused = False
@@ -287,6 +297,8 @@ while running:
             if event.key == pygame.K_p:  # Пауза при нажатии P
                 paused = not paused
 
+    font = pygame.font.Font(None, 36)
+
     if not paused:
         screen.blit(game_fon, (0, 0))
 
@@ -301,7 +313,7 @@ while running:
                 ball.speed_x = -ball.speed_x  # Столкновение слева
             elif abs(ball.rect.left - brick.rect.right) < 10 and ball.speed_x < 0:
                 ball.speed_x = -ball.speed_x  # Столкновение справа
-            brick.take_damage()  # Наносим урон кирпичу
+            score += brick.take_damage()  # Увеличиваем счет за разрушение кирпича
 
         # Проверка столкновений мяча с платформой
         if pygame.sprite.collide_mask(ball, player):
@@ -326,14 +338,15 @@ while running:
 
         bricks.update()
 
-        # Отображение количества жизней
+        # Отображение количества жизней и очки
         for i in range(lives):
             lives_images = pygame.transform.scale_by(load_image('health.png'), 0.7)
             screen.blit(lives_images, (20 + i * 40, 670))
+        score_text = font.render(f"Очки: {score}", True, "BLACK")
+        screen.blit(score_text, (W - 200, 686))
 
     if paused:
         screen.fill((100, 100, 100))
-        font = pygame.font.Font(None, 36)
         pause_text = font.render("Пауза", True, "WHITE")
         screen.blit(pause_text, (W // 2 - 40, H // 2))
 
